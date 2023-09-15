@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id('comment_id');
             $table->text('content');
             $table->unsignedBigInteger('subscriber_id');
+            $table->unsignedBigInteger('news_id');
             $table->timestamps();
 
+            $table->foreign('news_id')->references('news_id')->on('news');
             $table->foreign('subscriber_id')->references('subscriber_id')->on('subscribers');
         });
     }

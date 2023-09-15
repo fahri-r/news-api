@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('content');
             $table->boolean('published')->default(false);
-            $table->unsignedBigInteger('image_id');
+            $table->unsignedBigInteger('file_id')->nullable();
             $table->unsignedBigInteger('author_id');
             $table->timestamps();
 
-            $table->foreign('image_id')->references('file_id')->on('files');
+            $table->foreign('file_id')->references('file_id')->on('files');
             $table->foreign('author_id')->references('author_id')->on('authors');
         });
     }
