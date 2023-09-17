@@ -24,13 +24,11 @@ class AuthServiceProvider extends ServiceProvider
     ];
 
     public static $permissions = [
-        'index-news' => ['subscriber'],
-        'show-product' => ['manager', 'customer'],
-        'create-product' => ['manager'],
-        'store-product' => ['manager'],
-        'edit-product' => ['manager'],
-        'update-product' => ['manager'],
-        'destroy-product' => ['manager'],
+        'store-news' => ['admin'],
+        'update-news' => ['admin'],
+        'destroy-news' => ['admin'],
+        'store-comment' => ['subscriber'],
+        'upload' => ['admin'],
     ];
 
     /**
@@ -40,8 +38,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Passport::ignoreRoutes();
-    
-        foreach (self::$permissions as $action=> $roles) {
+
+        foreach (self::$permissions as $action => $roles) {
             Gate::define(
                 $action,
                 function (User $user) use ($roles) {

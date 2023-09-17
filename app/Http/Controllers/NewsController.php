@@ -13,17 +13,16 @@ class NewsController extends BaseController
 {
     public function index(Request $request)
     {
-        $data = News::with(['author', 'image'])->get();
-        $total = News::count();
         $page = $request->has('page') ? $request->input('page') : 1;
         $per_page = $request->has('per_page') ? (int) $request->input('per_page') : 10;
+        $data = News::with(['author', 'image'])->paginate($per_page, ['*'], 'page', $page);
 
         return response()->json([
-            'status' => 'ok',
-            "data" => $data,
-            'total' => $total,
-            'per_page' => $per_page,
-            'page' => $page,
+            'success' => true,
+            "data" => $data->items(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
+            'page' => $data->currentPage(),
         ]);
     }
 
@@ -72,7 +71,7 @@ class NewsController extends BaseController
         $data = News::with(['author', 'image', 'comments'])->where('slug', $slug)->firstOrFail();
 
         return response()->json([
-            "status" => true,
+            'success' => true,
             "data" => $data
         ]);
     }
@@ -100,7 +99,7 @@ class NewsController extends BaseController
         Event::dispatch(new NewsLog($data->slug, 'Update News'));
 
         return response()->json([
-            "status" => true,
+            'success' => true,
             "data" => $data
         ]);
     }
@@ -114,7 +113,7 @@ class NewsController extends BaseController
         Event::dispatch(new NewsLog($data->slug, 'Delete News'));
 
         return response()->json([
-            "status" => true,
+            'success' => true,
             "data" => $data
         ]);
     }

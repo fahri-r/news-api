@@ -39,7 +39,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('Laravel-9-Passport-Auth')->accessToken;
+        $token = $user->createToken(env('APP_NAME', 'Laravel'))->accessToken;
 
         return response()->json(['token' => $token], 200);
     }
@@ -52,7 +52,7 @@ class AuthController extends Controller
         ];
 
         if (auth()->attempt($data)) {
-            $token = auth()->user()->createToken('Laravel-9-Passport-Auth')->accessToken;
+            $token = auth()->user()->createToken(env('APP_NAME', 'Laravel'))->accessToken;
             return response()->json(['token' => $token], 200);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);

@@ -12,17 +12,16 @@ class CommentController extends BaseController
 {
     public function index(Request $request)
     {
-        $data = Comment::with(['subscriber'])->get();
-        $total = Comment::count();
         $page = $request->has('page') ? $request->input('page') : 1;
         $per_page = $request->has('per_page') ? (int) $request->input('per_page') : 10;
+        $data = Comment::with(['subscriber'])->paginate($per_page, ['*'], 'page', $page);
 
         return response()->json([
-            'status' => 'ok',
-            "data" => $data,
-            'total' => $total,
-            'per_page' => $per_page,
-            'page' => $page,
+            'success' => true,
+            "data" => $data->items(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
+            'page' => $data->currentPage(),
         ]);
     }
 
@@ -36,72 +35,19 @@ class CommentController extends BaseController
 
         $subscriber = Subscriber::find(auth()->user()->user_id);
 
-        // $data = Comment::create([
-        //     'news_id' => $request->news_id,
-        //     'content' => $request->content,
-        //     'subscriber_id' => $subscriber->subscriber_id,
-        // ]);
-
         CreateComment::dispatch($request->news_id, $request->content, $subscriber->subscriber_id);
 
         Log::info('Dispatched comment');
 
         return response()->json([
             "success" => true,
-            // "data" => $data
         ]);
     }
 
 
-    public function show(string $slug)
+    public function show(string $id)
     {
-        $data = Comment::where('slug', $slug)->firstOrFail();
-
-        return response()->json([
-            "success" => true,
-            "data" => $data
-        ]);
-    }
-
-
-    public function update(Request $request, string $slug)
-    {
-        $data = Comment::where('slug', $slug)->firstOrFail();
-
-        $this->validate($request, [
-            'title' => 'required',
-            'content' => 'required',
-            'published' => 'nullable',
-        ]);
-
-        $author = Subscriber::find(auth()->user()->user_id);
-
-        $data = Comment::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'published' => $request->published ?? false,
-            'author_id' => $author->author_id,
-            'slug' => $this->slugify($request->title),
-        ]);
-
-        $data->title = $request->title;
-        $data->content = $request->content;
-        $data->published = $request->published ?? false;
-        $data->author_id = $author->author_id;
-        $data->slug = $this->slugify($request->title);
-        $data->save();
-
-        return response()->json([
-            "success" => true,
-            "data" => $data
-        ]);
-    }
-
-
-    public function destroy(string $slug)
-    {
-        $data = Comment::where('slug', $slug)->firstOrFail();
-        $data->delete();
+        $data = Comment::find($id);
 
         return response()->json([
             "success" => true,
