@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\UploadController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +31,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         Route::apiResource('news', NewsController::class)->middleware('can:index-news');
+        Route::apiResource('comments', CommentController::class);
     });
 });
 
@@ -43,3 +46,4 @@ Route::middleware('auth:api')->group(function () {
         );
     });
 });
+Route::post('/uploads', [UploadController::class, 'store']);

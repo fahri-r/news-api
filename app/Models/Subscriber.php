@@ -12,7 +12,7 @@ class Subscriber extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $primaryKey = 'author_id';
+    protected $primaryKey = 'subscriber_id';
 
     protected $fillable = [
         'user_id',

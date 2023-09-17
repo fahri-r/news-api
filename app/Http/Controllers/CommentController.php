@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CreateComment;
 use App\Models\Comment;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends BaseController
 {
@@ -28,24 +30,25 @@ class CommentController extends BaseController
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
+            'news_id' => 'required',
             'content' => 'required',
-            'published' => 'nullable',
         ]);
 
-        $author = Comment::find(auth()->user()->user_id);
+        $subscriber = Subscriber::find(auth()->user()->user_id);
 
-        $data = Comment::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'published' => $request->published ?? false,
-            'author_id' => $author->author_id,
-            'slug' => $this->slugify($request->title),
-        ]);
+        // $data = Comment::create([
+        //     'news_id' => $request->news_id,
+        //     'content' => $request->content,
+        //     'subscriber_id' => $subscriber->subscriber_id,
+        // ]);
+
+        CreateComment::dispatch($request->news_id, $request->content, $subscriber->subscriber_id);
+
+        Log::info('Dispatched comment');
 
         return response()->json([
             "success" => true,
-            "data" => $data
+            // "data" => $data
         ]);
     }
 
@@ -64,7 +67,7 @@ class CommentController extends BaseController
     public function update(Request $request, string $slug)
     {
         $data = Comment::where('slug', $slug)->firstOrFail();
-        
+
         $this->validate($request, [
             'title' => 'required',
             'content' => 'required',

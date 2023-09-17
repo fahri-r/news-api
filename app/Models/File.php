@@ -12,6 +12,13 @@ class File extends Model
 
     protected $primaryKey = 'file_id';
 
+    protected $fillable = [
+        'url',
+        'name',
+        'type',
+        'size',
+    ];
+
 
     public function news(): HasMany
     {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\NewsLog;
 use App\Models\Author;
+use App\Models\File;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -37,12 +38,24 @@ class NewsController extends BaseController
 
         $author = Author::find(auth()->user()->user_id);
 
+        if ($request->has('file')) {
+            $file = $request->file('file')->storeOnCloudinary();
+
+            $file_result = File::create([
+                'url' => $file->getSecurePath(),
+                'name' => $file->getOriginalFileName(),
+                'type' => $file->getFileType(),
+                'size' => $file->getSize(),
+            ]);
+        }
+
         $data = News::create([
             'title' => $request->title,
             'content' => $request->content,
             'published' => $request->published ?? false,
             'author_id' => $author->author_id,
             'slug' => $this->slugify($request->title),
+            'file_id' =>  $file_result->file_id ?? null,
         ]);
 
         Event::dispatch(new NewsLog($data->slug, 'Create News'));
@@ -56,7 +69,7 @@ class NewsController extends BaseController
 
     public function show(string $slug)
     {
-        $data = News::where('slug', $slug)->firstOrFail();
+        $data = News::with(['author', 'image', 'comments'])->where('slug', $slug)->firstOrFail();
 
         return response()->json([
             "status" => true,
@@ -68,7 +81,7 @@ class NewsController extends BaseController
     public function update(Request $request, string $slug)
     {
         $data = News::where('slug', $slug)->firstOrFail();
-        
+
         $this->validate($request, [
             'title' => 'required',
             'content' => 'required',
