@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\News;
+use App\Models\User;
+use App\Policies\NewsPolicy;
 use Laravel\Passport\Passport;
 
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +20,17 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'App\Model' => 'App\Policies\ModelPolicy',
+        News::class => NewsPolicy::class,
+    ];
+
+    public static $permissions = [
+        'index-news' => ['subscriber'],
+        'show-product' => ['manager', 'customer'],
+        'create-product' => ['manager'],
+        'store-product' => ['manager'],
+        'edit-product' => ['manager'],
+        'update-product' => ['manager'],
+        'destroy-product' => ['manager'],
     ];
 
     /**
@@ -25,5 +40,16 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Passport::ignoreRoutes();
+    
+        foreach (self::$permissions as $action=> $roles) {
+            Gate::define(
+                $action,
+                function (User $user) use ($roles) {
+                    if (in_array($user->role, $roles)) {
+                        return true;
+                    }
+                }
+            );
+        }
     }
 }

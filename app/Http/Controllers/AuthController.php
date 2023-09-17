@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Author;
+use App\Models\Subscriber;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -10,20 +12,38 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required|min:8',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'role' => 'nullable',
+            'name' => 'required',
+            'file_id' => 'nullable'
         ]);
 
         $user = User::create([
             'email' => $request->email,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
+            'role' => $request->role ?? 'subscriber'
         ]);
+
+        if ($user->role == 'admin') {
+            Author::create([
+                'user_id' => $user->user_id,
+                'name' => $request->name,
+                'file_id' => $request->file_id,
+            ]);
+        } else {
+            Subscriber::create([
+                'user_id' => $user->user_id,
+                'name' => $request->name,
+                'file_id' => $request->file_id,
+            ]);
+        }
 
         $token = $user->createToken('Laravel-9-Passport-Auth')->accessToken;
 
         return response()->json(['token' => $token], 200);
     }
-    
+
     public function login(Request $request)
     {
         $data = [

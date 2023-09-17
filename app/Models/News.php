@@ -10,6 +10,16 @@ class News extends Model
 {
     use HasFactory;
     protected $primaryKey = 'news_id';
+
+    protected $fillable = [
+        'title',
+        'content',
+        'published',
+        'author_id',
+        'file_id',
+        'slug',
+    ];
+
     protected $hidden = [
         'file_id',
         'author_id',

@@ -27,7 +27,9 @@ Route::prefix('v1')->group(function () {
         return $request->user();
     });
 
-    Route::apiResource('news', NewsController::class);
+    Route::middleware('auth:api')->group(function () {
+        Route::apiResource('news', NewsController::class)->middleware('can:index-news');
+    });
 });
 
 
