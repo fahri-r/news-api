@@ -27,7 +27,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         Route::apiResource('news', NewsController::class)->except(['show', 'index'])->middleware(['can:store-news', 'can:update-news', 'can:destroy-news']);
-        Route::apiResource('comments', CommentController::class)->except(['show', 'index', 'destroy', 'update'])->middleware(['store-comment']);
+        Route::apiResource('comments', CommentController::class)->except(['show', 'index', 'destroy', 'update'])->middleware(['can:store-comment']);
         Route::post('/uploads', [UploadController::class, 'store'])->middleware('can:upload');
     });
 
@@ -39,7 +39,7 @@ Route::prefix('v1')->group(function () {
 Route::get('/', function (Request $request) {
     return response()->json(
         [
-            'status' => 'ok'
+            'message' => 'Hello World'
         ],
         200
     );

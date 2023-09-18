@@ -14,7 +14,7 @@ class CommentController extends BaseController
     {
         $page = $request->has('page') ? $request->input('page') : 1;
         $per_page = $request->has('per_page') ? (int) $request->input('per_page') : 10;
-        $data = Comment::with(['subscriber'])->paginate($per_page, ['*'], 'page', $page);
+        $data = Comment::with(['subscriber', 'news'])->paginate($per_page, ['*'], 'page', $page);
 
         return response()->json([
             'success' => true,
@@ -33,7 +33,7 @@ class CommentController extends BaseController
             'content' => 'required',
         ]);
 
-        $subscriber = Subscriber::find(auth()->user()->user_id);
+        $subscriber = Subscriber::where('user_id', auth()->user()->user_id)->firstOrFail();
 
         CreateComment::dispatch($request->news_id, $request->content, $subscriber->subscriber_id);
 

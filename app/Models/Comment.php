@@ -23,4 +23,9 @@ class Comment extends Model
     {
         return $this->belongsTo(News::class, 'news_id', 'news_id');
     }
+
+    public function subscriber(): BelongsTo
+    {
+        return $this->belongsTo(Subscriber::class, 'subscriber_id', 'subscriber_id');
+    }
 }

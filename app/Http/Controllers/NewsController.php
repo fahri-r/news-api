@@ -62,7 +62,7 @@ class NewsController extends BaseController
         return response()->json([
             "status" => true,
             "data" => $data
-        ]);
+        ], 201);
     }
 
 
@@ -108,9 +108,8 @@ class NewsController extends BaseController
     public function destroy(string $slug)
     {
         $data = News::where('slug', $slug)->firstOrFail();
-        $data->delete();
-
         Event::dispatch(new NewsLog($data->slug, 'Delete News'));
+        $data->delete();
 
         return response()->json([
             'success' => true,
